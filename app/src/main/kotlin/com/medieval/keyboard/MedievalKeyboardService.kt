@@ -34,7 +34,7 @@ class MedievalKeyboardService : InputMethodService(),
     private var currentPeriod: Int = 0    // 0=Medieval, 1=Tudor, 2=Pirate
     private var currentIntensity: Int = 1 // 0=Mild, 1=Olde, 2=Forsooth
     private var isRageMode: Boolean = false
-    private var isAutoCorrectEnabled: Boolean = true
+    private var isAutoCorrectEnabled: Boolean = false
     private val rageHandler = Handler(Looper.getMainLooper())
     private var rageTimeoutRunnable: Runnable? = null
 

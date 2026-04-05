@@ -44,7 +44,7 @@ class SuggestionBarView @JvmOverloads constructor(
     var currentPeriod: Int = 0  // 0=Medieval, 1=Tudor, 2=Pirate
     var currentIntensity: Int = 1  // 0=Mild, 1=Olde, 2=Forsooth
     var isRageMode: Boolean = false
-    var isAutoCorrectEnabled: Boolean = true
+    var isAutoCorrectEnabled: Boolean = false
 
     private val periodLabels = arrayOf("⚔️ Medieval", "🏰 Tudor", "☠️ Pirate")
     private val intensityLabels = arrayOf("Mild", "Olde", "Forsooth")
