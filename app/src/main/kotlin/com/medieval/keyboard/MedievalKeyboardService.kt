@@ -414,6 +414,22 @@ class MedievalKeyboardService : InputMethodService(),
         }
     }
 
+    private fun replaceAllText(ic: InputConnection, newText: String) {
+        ic.beginBatchEdit()
+        // Get full text to know its length
+        val extracted = try {
+            ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
+        } catch (_: Exception) { null }
+        val fullLen = extracted?.text?.length ?: 0
+        if (fullLen > 0) {
+            // Move cursor to end, then delete everything before it
+            ic.setSelection(fullLen, fullLen)
+            ic.deleteSurroundingText(fullLen, 0)
+        }
+        ic.commitText(newText, 1)
+        ic.endBatchEdit()
+    }
+
     private fun translateAllContent(ic: InputConnection) {
         val before = try {
             ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
@@ -421,7 +437,6 @@ class MedievalKeyboardService : InputMethodService(),
         val fullText = before?.text?.toString() ?: return
         if (fullText.isBlank()) return
 
-        // Process emoji first
         val emojiProcessed = processTextForEmoji(fullText)
 
         suggestionBar?.setLoading(true)
@@ -434,11 +449,7 @@ class MedievalKeyboardService : InputMethodService(),
                         val cry = MedievalFallbackMap.rageCries.random()
                         "$translated $cry"
                     } else translated
-                    freshIc.beginBatchEdit()
-                    freshIc.performContextMenuAction(android.R.id.selectAll)
-                    freshIc.commitText("", 1)
-                    freshIc.commitText(finalText, 1)
-                    freshIc.endBatchEdit()
+                    replaceAllText(freshIc, finalText)
                     lastTranslatedSentence = finalText
                 }
             } catch (_: Exception) {
@@ -467,11 +478,7 @@ class MedievalKeyboardService : InputMethodService(),
                         val cry = MedievalFallbackMap.rageCries.random()
                         "$translated $cry"
                     } else translated
-                    freshIc.beginBatchEdit()
-                    freshIc.performContextMenuAction(android.R.id.selectAll)
-                    freshIc.commitText("", 1)
-                    freshIc.commitText(finalText, 1)
-                    freshIc.endBatchEdit()
+                    replaceAllText(freshIc, finalText)
                     lastTranslatedSentence = finalText
                 }
             } catch (_: Exception) {
