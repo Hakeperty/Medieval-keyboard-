@@ -215,6 +215,62 @@ ADDITIONAL EXAMPLE TRANSLATIONS:
 - "dripped out" → "adorned in the most magnificent raiment imaginable"
 - "we're so back" → "the army doth rise again, victory is nigh"
 - "it's over" → "the battle is lost, all hope hath fled"
+- "fyp" → "may this reach the royal proclamation board"
+- "went viral" → "spread through the kingdom like the sweating sickness"
+- "gg ez" → "a most effortless victory, hardly worth celebrating"
+- "noob" → "a most inexperienced and bumbling novice knight"
+- "rage quit" → "to flee the battlefield in furious disgrace"
+- "clutch" → "snatching victory from the jaws of certain defeat"
+- "red flag" → "a warning sign most ominous flying above the castle"
+- "brain rot" → "mine mind hath been corrupted by excessive foolery"
+- "therapy arc" → "embarking upon a quest of inner healing and self-knowledge"
+- "core memory" → "a moment etched into mine very soul for all eternity"
+- "plot twist" → "a most unexpected turn in this great tale"
+- "lore drop" → "a sudden revelation of most ancient and significant history"
+
+DRAMATIC FORMATTING RULES:
+- Single letters used as words (W, L, K, G) → full medieval declarations
+- Numbers used as words (1, 2, 4) → spell out in medieval context
+- Repeated letters for emphasis (noooo, yessss, pleaseee) → 
+  add dramatic trailing medieval words ("NAY NAY NAY, I BEG OF THEE")
+- ALL CAPS messages → respond in herald/town crier proclamation style,
+  add "HEAR YE! HEAR YE!" at the start
+- Messages ending in multiple ??? → "BY WHAT SORCERY???"
+- Messages ending in multiple !!! → add "I SAY!" or "FORSOOTH!" at end
+- Single word messages → give the most dramatically expanded medieval version possible
+- Very short messages (1-3 words) → expand into a full medieval sentence
+- Very long messages → translate faithfully but add one dramatic medieval 
+  flourish at the start or end
+- NEVER translate anything as boring — always maximum drama
+
+TIKTOK & CREATOR SLANG:
+- Content creation terms (fyp, algorithm, went viral, cancelled, stream) → 
+  royal court and herald proclamation language
+- "algorithm" → dark enchantment / sorcery controlling the masses
+- "went viral" → spread like plague / sweating sickness through the kingdom
+- "cancelled" → banished by public decree / exiled from the realm
+
+GAMING SLANG:
+- Gaming terms (gg, noob, clutch, carry, nerf, buff, op, bot) → 
+  battlefield and tournament language
+- "noob" → bumbling squire / novice knight on first campaign
+- "rage quit" → fleeing the battlefield in furious disgrace
+- "clutch" → snatching victory from the jaws of certain defeat
+- "carry" → bearing thine entire company upon thine back
+
+RELATIONSHIP & DATING SLANG:
+- Dating terms (talking stage, red flag, gaslighting, breadcrumbing) →
+  courtship and romance language with medieval dramatic flair
+- "red flag" → ominous banner / warning sign above the castle
+- "gaslighting" → dark sorcery making one question their own sanity
+- "soft launch" → presenting companion cautiously before the court
+
+MENTAL HEALTH & MOOD SLANG:
+- Mood terms (brain rot, burnout, adulting, therapy arc, vibing) →
+  bardic and philosophical medieval language
+- "brain rot" → mind corrupted by excessive foolery
+- "burnout" → fire extinguished through overwork
+- "therapy arc" → quest of inner healing and self-knowledge
 
 GRAMMAR RULES:
 - Replace "-ing" endings: "going" → "going forth", "doing" → "dost do"
@@ -230,82 +286,150 @@ OUTPUT FORMAT:
 - Keep the core meaning intact while maximizing medieval flavor
     """.trimIndent()
 
-    suspend fun translateWord(word: String): String? {
+    private val TUDOR_PROMPT_SUFFIX = """
+
+PERIOD FOCUS: You are now translating into TUDOR ENGLISH (1500s era).
+Use language specific to the Tudor period: doth, hath, prithee, milady, milord, 
+good morrow, wherefore, forthwith, anon, pray tell, mayhaps, 'twas, 'twill.
+Think Shakespeare, Henry VIII's court, Elizabeth I. More refined, less rough.
+    """.trimIndent()
+
+    private val PIRATE_PROMPT_SUFFIX = """
+
+PERIOD FOCUS: You are now translating into PIRATE ENGLISH (1700s Golden Age of Piracy).
+Use pirate language: arrr, ye, matey, scallywag, landlubber, shiver me timbers,
+Davey Jones, plunder, pillage, walk the plank, blimey, ahoy, avast, 
+scurvy dog, by Davy's locker, pieces of eight, grog, cap'n, swab the decks,
+three sheets to the wind, keelhaul, ye salty sea dog, batten down the hatches.
+Think Jack Sparrow, Blackbeard, the high seas.
+    """.trimIndent()
+
+    private val RAGE_PROMPT_SUFFIX = """
+
+RAGE MODE ACTIVE: Maximum aggression and drama! Every translation must be:
+- Written as if shouting from a battlefield
+- Include war terminology: smite, cleave, slay, vanquish, conquer, charge
+- Make everything sound like a battle cry or war declaration
+- Use exclamation marks liberally
+- Reference combat, honor, blood, steel, and glory
+- End messages with war cries when appropriate
+    """.trimIndent()
+
+    private val INTENSITY_MILD_SUFFIX = """
+
+INTENSITY: MILD. Only lightly medievalize:
+- Change pronouns (you→thou, your→thy) and a few key words
+- Keep sentence structure mostly modern
+- Add minimal period flavor
+- Do NOT heavily transform every word
+    """.trimIndent()
+
+    private val INTENSITY_FORSOOTH_SUFFIX = """
+
+INTENSITY: MAXIMUM FORSOOTH MODE. Transform EVERYTHING:
+- Every single word must be medieval
+- Start sentences with proclamations (Hark!, Hearken!, Forsooth!)
+- End with dramatic flair (I say!, methinks!, 'tis so!)
+- Inject random "HEAR YE!" occasionally
+- Maximum dramatic vocabulary at all times
+- Nothing should sound remotely modern
+    """.trimIndent()
+
+    // Period: 0=Medieval, 1=Tudor, 2=Pirate
+    // Intensity: 0=Mild, 1=Olde (standard), 2=Forsooth
+    private fun buildPrompt(period: Int = 0, intensity: Int = 1, rageMode: Boolean = false): String {
+        val sb = StringBuilder(SYSTEM_PROMPT)
+        when (period) {
+            1 -> sb.append("\n\n").append(TUDOR_PROMPT_SUFFIX)
+            2 -> sb.append("\n\n").append(PIRATE_PROMPT_SUFFIX)
+        }
+        when (intensity) {
+            0 -> sb.append("\n\n").append(INTENSITY_MILD_SUFFIX)
+            2 -> sb.append("\n\n").append(INTENSITY_FORSOOTH_SUFFIX)
+        }
+        if (rageMode) sb.append("\n\n").append(RAGE_PROMPT_SUFFIX)
+        return sb.toString()
+    }
+
+    suspend fun translateWord(word: String, period: Int = 0, intensity: Int = 1, rageMode: Boolean = false): String? {
         val cached = TranslationCache.get(word)
         if (cached != null) return cached
 
         val apiKey = BuildConfig.NVIDIA_API_KEY
-        if (apiKey.isBlank()) return MedievalFallbackMap.translate(word)
+        if (apiKey.isBlank()) return MedievalFallbackMap.translateWithPeriod(word, period)
 
         return try {
             val result = withTimeoutOrNull(TIMEOUT_MS) {
-                callApi("Translate this single word to medieval English. Return exactly 3 comma-separated medieval synonyms, nothing else: $word")
+                callApi("Translate this single word to medieval English. Return exactly 3 comma-separated medieval synonyms, nothing else: $word",
+                    period, intensity, rageMode)
             }
             if (result != null) {
                 TranslationCache.put(word, result)
                 result
             } else {
-                MedievalFallbackMap.translate(word)
+                MedievalFallbackMap.translateWithPeriod(word, period)
             }
         } catch (e: Exception) {
-            MedievalFallbackMap.translate(word)
+            MedievalFallbackMap.translateWithPeriod(word, period)
         }
     }
 
-    suspend fun translateSentence(sentence: String): String? {
+    suspend fun translateSentence(sentence: String, period: Int = 0, intensity: Int = 1, rageMode: Boolean = false): String? {
         val cached = TranslationCache.get(sentence)
         if (cached != null) return cached
 
         val apiKey = BuildConfig.NVIDIA_API_KEY
-        if (apiKey.isBlank()) return translateSentenceFallback(sentence)
+        if (apiKey.isBlank()) return translateSentenceFallback(sentence, period)
 
         return try {
             val result = withTimeoutOrNull(TIMEOUT_MS) {
-                callApi("Translate this to medieval English: $sentence")
+                callApi("Translate this to medieval English: $sentence", period, intensity, rageMode)
             }
             if (result != null) {
                 TranslationCache.put(sentence, result)
                 result
             } else {
-                translateSentenceFallback(sentence)
+                translateSentenceFallback(sentence, period)
             }
         } catch (e: Exception) {
-            translateSentenceFallback(sentence)
+            translateSentenceFallback(sentence, period)
         }
     }
 
-    suspend fun getSuggestions(word: String): List<String> {
+    suspend fun getSuggestions(word: String, period: Int = 0, intensity: Int = 1): List<String> {
         val cached = TranslationCache.get(word)
         if (cached != null) return cached.split(",").map { it.trim() }.take(3)
 
         val apiKey = BuildConfig.NVIDIA_API_KEY
         if (apiKey.isBlank()) {
-            val fallback = MedievalFallbackMap.translate(word) ?: return emptyList()
+            val fallback = MedievalFallbackMap.translateWithPeriod(word, period) ?: return emptyList()
             return listOf(fallback)
         }
 
         return try {
             val result = withTimeoutOrNull(TIMEOUT_MS) {
-                callApi("Translate this single word to medieval English. Return exactly 3 comma-separated medieval synonyms, nothing else: $word")
+                callApi("Translate this single word to medieval English. Return exactly 3 comma-separated medieval synonyms, nothing else: $word",
+                    period, intensity)
             }
             if (result != null) {
                 TranslationCache.put(word, result)
                 result.split(",").map { it.trim() }.take(3)
             } else {
-                val fallback = MedievalFallbackMap.translate(word) ?: return emptyList()
+                val fallback = MedievalFallbackMap.translateWithPeriod(word, period) ?: return emptyList()
                 listOf(fallback)
             }
         } catch (e: Exception) {
-            val fallback = MedievalFallbackMap.translate(word) ?: return emptyList()
+            val fallback = MedievalFallbackMap.translateWithPeriod(word, period) ?: return emptyList()
             listOf(fallback)
         }
     }
 
-    private suspend fun callApi(userMessage: String): String = withContext(Dispatchers.IO) {
+    private suspend fun callApi(userMessage: String, period: Int = 0, intensity: Int = 1, rageMode: Boolean = false): String = withContext(Dispatchers.IO) {
+        val prompt = buildPrompt(period, intensity, rageMode)
         val messagesArray = JSONArray().apply {
             put(JSONObject().apply {
                 put("role", "system")
-                put("content", SYSTEM_PROMPT)
+                put("content", prompt)
             })
             put(JSONObject().apply {
                 put("role", "user")
@@ -353,10 +477,10 @@ OUTPUT FORMAT:
         }
     }
 
-    private fun translateSentenceFallback(sentence: String): String {
+    private fun translateSentenceFallback(sentence: String, period: Int = 0): String {
         val words = sentence.split(" ")
         return words.joinToString(" ") { word ->
-            MedievalFallbackMap.translate(word) ?: word
+            MedievalFallbackMap.translateWithPeriod(word, period) ?: word
         }
     }
 }

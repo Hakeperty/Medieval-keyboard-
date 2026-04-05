@@ -1,5 +1,6 @@
 package com.medieval.keyboard
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -13,6 +14,7 @@ import android.os.VibratorManager
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.LinearInterpolator
 
 data class Key(
     val label: String,
@@ -37,10 +39,13 @@ class KeyboardView @JvmOverloads constructor(
 
     var listener: OnKeyboardActionListener? = null
     var shiftState: Int = 0 // 0=lower, 1=UPPER, 2=Title
+    var isRageMode: Boolean = false
 
     private val keys = mutableListOf<Key>()
     private var pressedKey: Key? = null
     private var longPressTriggered = false
+    private var backspaceHeld = false
+    private var backspaceRepeatRunnable: Runnable? = null
 
     private val bgColor = Color.parseColor("#1C1C1E")
     private val keyColor = Color.parseColor("#3A3A3C")
@@ -48,6 +53,8 @@ class KeyboardView @JvmOverloads constructor(
     private val specialKeyColor = Color.parseColor("#2C2C2E")
     private val textColor = Color.WHITE
     private val secondaryTextColor = Color.parseColor("#A0A0A0")
+    private val rageKeyColor = Color.parseColor("#4A1010")
+    private val ragePulseColor = Color.parseColor("#6A1515")
     private val cornerRadius = 12f * resources.displayMetrics.density
 
     private val keyPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -66,6 +73,18 @@ class KeyboardView @JvmOverloads constructor(
     private val gap = 3f * resources.displayMetrics.density
     private val rowHeight = 46f * resources.displayMetrics.density
     private val density = resources.displayMetrics.density
+
+    // Rage mode pulse animation
+    private var ragePulseAlpha = 0f
+    private val ragePulseAnimator = ValueAnimator.ofFloat(0f, 1f, 0f).apply {
+        duration = 1200
+        repeatCount = ValueAnimator.INFINITE
+        interpolator = LinearInterpolator()
+        addUpdateListener { animation ->
+            ragePulseAlpha = animation.animatedValue as Float
+            if (isRageMode) invalidate()
+        }
+    }
 
     private val numberRow = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
     private val row1 = listOf("q", "w", "e", "r", "t", "y", "u", "i", "o", "p")
@@ -91,6 +110,17 @@ class KeyboardView @JvmOverloads constructor(
                 listener?.onLongPressSpace()
             }
         }
+    }
+
+    fun setRageMode(enabled: Boolean) {
+        isRageMode = enabled
+        if (enabled) {
+            if (!ragePulseAnimator.isRunning) ragePulseAnimator.start()
+        } else {
+            ragePulseAnimator.cancel()
+            ragePulseAlpha = 0f
+        }
+        invalidate()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -176,6 +206,13 @@ class KeyboardView @JvmOverloads constructor(
             val isPressed = key == pressedKey
             keyPaint.color = when {
                 isPressed -> keyPressedColor
+                isRageMode && !key.isSpecial -> {
+                    // Interpolate between rageKeyColor and ragePulseColor based on pulse
+                    val r = lerp(Color.red(rageKeyColor), Color.red(ragePulseColor), ragePulseAlpha)
+                    val g = lerp(Color.green(rageKeyColor), Color.green(ragePulseColor), ragePulseAlpha)
+                    val b = lerp(Color.blue(rageKeyColor), Color.blue(ragePulseColor), ragePulseAlpha)
+                    Color.rgb(r, g, b)
+                }
                 key.isSpecial -> specialKeyColor
                 else -> keyColor
             }
@@ -188,7 +225,7 @@ class KeyboardView @JvmOverloads constructor(
             val paint = if (key.code == CODE_SPACE) {
                 smallTextPaint.apply {
                     textSize = 16f * density
-                    color = secondaryTextColor
+                    color = if (isRageMode) Color.parseColor("#FF6666") else secondaryTextColor
                 }
             } else if (key.isSpecial) {
                 textPaint.apply {
@@ -207,18 +244,21 @@ class KeyboardView @JvmOverloads constructor(
         }
     }
 
+    private fun lerp(a: Int, b: Int, t: Float): Int {
+        return (a + (b - a) * t).toInt().coerceIn(0, 255)
+    }
+
     private fun getDisplayLabel(key: Key): String {
         if (key.isSpecial || key.code == CODE_SPACE || key.code == CODE_COMMA || key.code == CODE_PERIOD) {
             if (key.code == CODE_SHIFT) {
                 return when (shiftState) {
-                    1 -> "⇧"  // filled
+                    1 -> "⇧"
                     2 -> "⇪"
                     else -> "⇧"
                 }
             }
             return key.label
         }
-        // Number row
         if (key.label[0].isDigit()) return key.label
         return when (shiftState) {
             1 -> key.label.uppercase()
@@ -231,11 +271,16 @@ class KeyboardView @JvmOverloads constructor(
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 longPressTriggered = false
+                backspaceHeld = false
                 pressedKey = findKey(event.x, event.y)
                 pressedKey?.let {
                     hapticFeedback()
                     if (it.code == CODE_SPACE) {
                         handler?.postDelayed(longPressRunnable, 600)
+                    }
+                    if (it.code == CODE_BACKSPACE) {
+                        backspaceHeld = true
+                        startBackspaceRepeat()
                     }
                 }
                 invalidate()
@@ -243,6 +288,8 @@ class KeyboardView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
                 handler?.removeCallbacks(longPressRunnable)
+                stopBackspaceRepeat()
+                backspaceHeld = false
                 pressedKey?.let { key ->
                     if (!longPressTriggered) {
                         val label = getDisplayLabel(key)
@@ -255,6 +302,8 @@ class KeyboardView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_CANCEL -> {
                 handler?.removeCallbacks(longPressRunnable)
+                stopBackspaceRepeat()
+                backspaceHeld = false
                 pressedKey = null
                 longPressTriggered = false
                 invalidate()
@@ -262,6 +311,24 @@ class KeyboardView @JvmOverloads constructor(
             }
         }
         return false
+    }
+
+    private fun startBackspaceRepeat() {
+        backspaceRepeatRunnable = object : Runnable {
+            override fun run() {
+                if (backspaceHeld) {
+                    listener?.onKeyPress(CODE_BACKSPACE, "⌫")
+                    hapticFeedbackLight()
+                    handler?.postDelayed(this, 50)
+                }
+            }
+        }
+        handler?.postDelayed(backspaceRepeatRunnable!!, 400)
+    }
+
+    private fun stopBackspaceRepeat() {
+        backspaceRepeatRunnable?.let { handler?.removeCallbacks(it) }
+        backspaceRepeatRunnable = null
     }
 
     private fun findKey(x: Float, y: Float): Key? {
@@ -272,15 +339,29 @@ class KeyboardView @JvmOverloads constructor(
     }
 
     private fun hapticFeedback() {
+        vibrate(15, VibrationEffect.DEFAULT_AMPLITUDE)
+    }
+
+    private fun hapticFeedbackLight() {
+        vibrate(8, 40)
+    }
+
+    private fun vibrate(durationMs: Long, amplitude: Int) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val mgr = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                mgr.defaultVibrator.vibrate(VibrationEffect.createOneShot(15, VibrationEffect.DEFAULT_AMPLITUDE))
+                mgr.defaultVibrator.vibrate(VibrationEffect.createOneShot(durationMs, amplitude))
             } else {
                 @Suppress("DEPRECATION")
                 val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                vibrator.vibrate(VibrationEffect.createOneShot(15, VibrationEffect.DEFAULT_AMPLITUDE))
+                vibrator.vibrate(VibrationEffect.createOneShot(durationMs, amplitude))
             }
         } catch (_: Exception) {}
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        ragePulseAnimator.cancel()
+        stopBackspaceRepeat()
     }
 }

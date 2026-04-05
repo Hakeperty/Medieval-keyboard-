@@ -8,7 +8,7 @@
     <com.medieval.keyboard.SuggestionBarView
         android:id="@+id/suggestion_bar"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="76dp"
         android:background="#1C1C1E" />
 
     <com.medieval.keyboard.KeyboardView

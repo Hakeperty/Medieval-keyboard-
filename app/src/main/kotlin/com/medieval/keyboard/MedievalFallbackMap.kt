@@ -3,7 +3,7 @@ package com.medieval.keyboard
 object MedievalFallbackMap {
 
     val map: HashMap<String, String> = hashMapOf(
-        // Common substitutions
+        // === COMMON SUBSTITUTIONS ===
         "yes" to "aye",
         "yeah" to "aye, verily",
         "yep" to "aye",
@@ -54,7 +54,7 @@ object MedievalFallbackMap {
         "good" to "most worthy",
         "great" to "most splendid",
 
-        // Slang — original
+        // === ORIGINAL SLANG ===
         "lol" to "I doth laugh heartily",
         "omg" to "by all the saints",
         "wtf" to "what devilry is this",
@@ -73,7 +73,7 @@ object MedievalFallbackMap {
         "shade" to "veiled insult most cunning",
         "tea" to "gossip most tantalizing",
 
-        // Greetings & casual chat slang
+        // === GREETINGS & CASUAL CHAT ===
         "wassup" to "hark, what tidings dost thou bring?",
         "wazzup" to "hark, what tidings dost thou bring?",
         "sup" to "hark, what tidings dost thou bring?",
@@ -92,7 +92,7 @@ object MedievalFallbackMap {
         "gg" to "well fought, thou gallant warrior",
         "wp" to "most valiant effort, good knight",
 
-        // Gen Z slang — updated & expanded
+        // === GEN Z SLANG ===
         "cap" to "thou speakest falsehoods, knave",
         "slay" to "thou dost smite all before thee",
         "ate" to "thou didst feast upon that challenge most gloriously",
@@ -108,15 +108,15 @@ object MedievalFallbackMap {
         "lowkey" to "in secret, lest the king's men hear",
         "highkey" to "I shout it from the highest rampart",
         "vibe" to "the humour of the moment",
-        "vibing" to "dwelling in most pleasant humour",
+        "vibing" to "dwelling in pleasant and harmonious humour",
         "sus" to "most suspicious, I dare say",
         "extra" to "most theatrical beyond all reason",
         "basic" to "plain as a peasant's gruel",
         "woke" to "most enlightened beyond thine station",
-        "clout" to "renown and standing in the kingdom",
+        "clout" to "renown and influence within the royal court",
         "shook" to "rattled to mine very bones",
 
-        // Hype & reaction slang
+        // === HYPE & REACTION ===
         "savage" to "most ruthless and without mercy",
         "salty" to "most bitter, like the sea itself",
         "flex" to "a most ostentatious display of one's riches",
@@ -126,10 +126,10 @@ object MedievalFallbackMap {
         "banger" to "a most rousing ballad for the ages",
         "dead" to "I am slain by this jestry",
 
-        // Dating & social slang
+        // === DATING & SOCIAL ===
         "ghost" to "vanish like a specter",
         "ghosted" to "vanished like a wraith in the night without word",
-        "situationship" to "a courtship of most uncertain honour",
+        "situationship" to "a courtship of most uncertain and undefined honour",
         "rizz" to "the art of courtly charm",
         "simp" to "a lovesick fool pining most pitifully",
         "stan" to "a most devoted admirer, bordering on madness",
@@ -138,23 +138,23 @@ object MedievalFallbackMap {
         "fomo" to "the fear of missing the great feast",
         "yolo" to "thou only walketh this earth once, seize the day",
 
-        // Persona slang
+        // === PERSONA ===
         "sigma" to "a lone wolf of most noble bearing",
         "alpha" to "the chief lord of the pack",
         "beta" to "a most craven follower",
         "npc" to "a mere peasant of no consequence",
 
-        // Multi-word phrases
+        // === MULTI-WORD PHRASES ===
         "fr fr" to "verily, upon my honour, 'tis so",
         "no cap" to "I speak no falsehood, upon my troth",
         "no way" to "by God's wounds, thou jest surely",
         "say less" to "speak no further, I heed thee",
         "no rizz" to "possessing not a shred of courtly grace",
         "rent free" to "haunting thy thoughts like a restless wraith",
-        "main character" to "the hero of thine own great tale",
+        "main character" to "the hero around whom the entire tale revolves",
         "glow up" to "a most wondrous transformation, like a phoenix reborn",
-        "caught in 4k" to "caught in the act by the royal scribe",
-        "touch grass" to "venture thou forth into the fields, thou pale hermit",
+        "caught in 4k" to "witnessed by the royal portraitist in full and damning detail",
+        "touch grass" to "venture beyond thy stone walls into the natural realm",
         "i'm weak" to "thou hast robbed me of all strength through laughter",
         "lowkey crying" to "mine eyes doth leak most quietly",
         "it's giving" to "it doth exude the essence of",
@@ -163,7 +163,7 @@ object MedievalFallbackMap {
         "it's not giving" to "it doth fail to exude any worthy essence",
         "hits different" to "doth strike the soul in a manner most peculiar",
         "hit different at 3am" to "doth weigh upon the soul most heavily in the dead of night",
-        "understood the assignment" to "thou hast heeded the quest most gallantly",
+        "understood the assignment" to "hath heeded the royal decree with excellence",
         "periodt no cap" to "so it is written, so it shall be done",
         "we don't do that here" to "such conduct is most unwelcome in this kingdom",
         "ate and left no crumbs" to "feasted gloriously and left naught for the ravens",
@@ -171,7 +171,7 @@ object MedievalFallbackMap {
         "L" to "a most grievous defeat, thou wretch",
         "W" to "a most glorious victory, well met",
 
-        // More common words
+        // === MORE COMMON WORDS ===
         "man" to "fellow",
         "woman" to "lady",
         "wife" to "beloved wife",
@@ -302,7 +302,7 @@ object MedievalFallbackMap {
         "expensive" to "most costly",
         "cheap" to "of little worth",
 
-        // Street & friend slang
+        // === STREET & FRIEND SLANG ===
         "huzz" to "thou most disreputable wench of questionable virtue",
         "huz" to "thou most disreputable wench of questionable virtue",
         "bruzz" to "mine most trusted brother in arms",
@@ -328,7 +328,7 @@ object MedievalFallbackMap {
         "unreal" to "so magnificent it straineth belief",
         "surreal" to "as strange as a dream sent by the faeries",
 
-        // Street & friend multi-word phrases
+        // === STREET & FRIEND PHRASES ===
         "ride or die" to "sworn to stand by mine side til the final battle",
         "day one" to "loyal since the very first cockcrow",
         "squash the beef" to "let us broker peace and end this blood feud",
@@ -340,7 +340,7 @@ object MedievalFallbackMap {
         "clout chaser" to "a glory hound seeking unearned renown",
         "pick me" to "one who doth grovel most pitifully for approval",
 
-        // Hype & reaction slang
+        // === HYPE & REACTION SLANG ===
         "cooked" to "in most dire straits with no escape",
         "pressed" to "most vexed and wound up like a siege engine",
         "ick" to "a most revolting sensation hath overcome me",
@@ -363,7 +363,7 @@ object MedievalFallbackMap {
         "chill" to "be of calm and pleasant humour",
         "hits" to "doth strike the palate most pleasurably",
 
-        // Hype & reaction multi-word phrases
+        // === HYPE & REACTION PHRASES ===
         "go crazy" to "descend into most glorious madness",
         "go off" to "unleash thy fury, hold nothing back",
         "go off sis" to "speak thy truth maiden, let the whole kingdom hear",
@@ -377,7 +377,7 @@ object MedievalFallbackMap {
         "he's cooked" to "that poor wretch is well and truly done for",
         "bro is cooked" to "yonder fool hath sealed his own fate",
         "stick a fork in me" to "I am as done as a feast day pig upon the spit",
-        "not the" to "by the saints, not this wretched",
+        "not the" to "by the saints, anything but the",
         "the audacity" to "the sheer brazen impudence of this knave",
         "mad pressed" to "consumed by fury most unbecoming of thy station",
         "calm down" to "still thy tempestuous spirit, I prithee",
@@ -398,7 +398,7 @@ object MedievalFallbackMap {
         "understood the vibe" to "hath read the room with most admirable perception",
         "didn't pass the vibe check" to "hath failed the test of pleasant humour most miserably",
 
-        // Argument & clap back slang
+        // === ARGUMENT & CLAP BACK ===
         "you're cooked" to "thou art finished, prepare thy affairs",
         "ratio'd" to "bested in the court of public opinion, thou wretched fool",
         "i said what i said" to "mine words stand firm as castle walls",
@@ -424,7 +424,7 @@ object MedievalFallbackMap {
         "cope and seethe" to "wallow in denial and simmer in thine own fury",
         "touch grass and mald" to "venture outside and rage at the very sky",
 
-        // Food & daily life slang phrases
+        // === FOOD & DAILY LIFE PHRASES ===
         "no cap bussin" to "upon my honour this feast is of divine quality",
         "it's giving slay" to "it doth radiate excellence most magnificent",
         "slaps hard" to "assaults mine senses with magnificent force",
@@ -434,11 +434,308 @@ object MedievalFallbackMap {
         "goated with the sauce" to "a legend draped in the most mysterious and potent gifts",
         "the sauce" to "the mysterious secret ingredient of greatness",
         "dripped out" to "adorned in the most magnificent raiment imaginable",
-        "clean fit" to "garments of the most impeccable and noble quality"
+        "clean fit" to "garments of the most impeccable and noble quality",
+
+        // === TIKTOK & CONTENT CREATOR SLANG ===
+        "fyp" to "may this reach the royal proclamation board",
+        "for you page" to "the royal herald's board of curated announcements",
+        "algorithm" to "the dark enchantment that controls what the masses see",
+        "blew up" to "went forth and conquered all of the realm's attention",
+        "went viral" to "spread through the kingdom like the sweating sickness",
+        "content" to "thy creative proclamations and artistic offerings",
+        "creator" to "a craftsman of tales and proclamations",
+        "collab" to "a joint quest undertaken by two noble creators",
+        "drop" to "release thy wares upon the awaiting masses",
+        "merch" to "garments and trinkets bearing thy house sigil",
+        "stream" to "perform thy arts live before a gathered crowd",
+        "clip" to "a captured moment preserved by the royal scribe",
+        "highlight reel" to "a collection of thine greatest victories",
+        "flop" to "a most catastrophic failure before the entire court",
+        "cancelled" to "banished from the kingdom by public decree",
+        "cancelld" to "banished from the kingdom by public decree",
+        "cancel culture" to "the mob's swift justice and banishment decrees",
+        "influencer" to "one who shapeth the opinions of the common folk",
+        "hot take" to "a most controversial proclamation sure to stir the court",
+        "unpopular opinion" to "a view most unwelcome in polite company",
+        "thread" to "a lengthy scroll of connected proclamations",
+        "ratio this" to "attempt to best this proclamation, I dare thee",
+        "comment section" to "the town square of heated discourse",
+        "live" to "performing before the court at this very moment",
+
+        // === GAMING SLANG ===
+        "gg ez" to "a most effortless victory, hardly worth celebrating",
+        "noob" to "a most inexperienced and bumbling novice knight",
+        "tryhard" to "one who doth strain every sinew in desperate pursuit of glory",
+        "sweaty" to "exerting thine self most unbecomingly",
+        "grinding" to "toiling endlessly in pursuit of greater power",
+        "loot" to "the spoils of battle most gloriously seized",
+        "nerf" to "to weaken a once mighty champion by royal decree",
+        "buff" to "to empower a warrior by the grace of the game gods",
+        "meta" to "the dominant strategy favoured by the learned tacticians",
+        "op" to "overpowered beyond all reasonable measure",
+        "broken" to "so powerful it doth shatter the natural order",
+        "clutch" to "snatching victory from the jaws of certain defeat",
+        "carry" to "bearing thine entire team upon thine back like Atlas",
+        "int" to "to throw the battle most deliberately and shamefully",
+        "throw" to "to squander victory through thine own incompetence",
+        "bot" to "a hollow automaton devoid of genuine skill",
+        "afk" to "absent from the battlefield without leave",
+        "respawn" to "return from death's embrace for another attempt",
+        "final boss" to "the ultimate adversary standing between thee and glory",
+        "side quest" to "a minor errand most distracting from the main quest",
+        "npc behavior" to "acting as a mindless background peasant",
+        "main character energy" to "conducting thyself as the hero of the grand tale",
+        "speedrun" to "to complete a quest with unnatural and reckless haste",
+        "rage quit" to "to flee the battlefield in furious disgrace",
+
+        // === RELATIONSHIP & DATING SLANG ===
+        "talking stage" to "the delicate period of courtly correspondence",
+        "official" to "formally betrothed before witnesses",
+        "it's complicated" to "our courtship is mired in confusion most profound",
+        "the ick" to "a sudden and profound revulsion for one's suitor",
+        "red flag" to "a warning sign most ominous flying above the castle",
+        "green flag" to "a most auspicious sign of good character",
+        "toxic" to "poisonous to thine soul and wellbeing",
+        "gaslighting" to "making one question their own sanity through dark sorcery",
+        "love bombing" to "overwhelming with affection like a siege of the heart",
+        "breadcrumbing" to "leading one on with mere crumbs of false hope",
+        "ghosting" to "vanishing like a wraith without so much as a farewell",
+        "slow burn" to "a romance kindling slowly like embers in the hearth",
+        "enemies to lovers" to "from sworn adversaries to besotted companions",
+        "he's not giving" to "that suitor doth fail to provide what was promised",
+        "she's different" to "this maiden possesseth qualities most extraordinary",
+        "they're obsessed with me" to "I hath bewitched them entirely it seems",
+        "manifesting" to "willing something into existence through sheer conviction",
+        "soft launch" to "presenting thy companion to the court most cautiously",
+        "hard launch" to "presenting thy companion before the entire kingdom at once",
+        "we broke up" to "our courtship hath come to a most sorrowful end",
+        "it's giving ex" to "this doth remind me of mine most wretched former suitor",
+        "main character moment" to "a pivotal scene in thine own great romantic tale",
+
+        // === MENTAL HEALTH & MOOD SLANG ===
+        "not okay" to "mine spirit doth suffer most grievously",
+        "in my feels" to "overcome by emotions most turbulent and powerful",
+        "emotional damage" to "wounded in mine very soul",
+        "it do be like that" to "verily, such is the nature of this cruel world",
+        "that's rough buddy" to "a most grievous circumstance, thou hast mine sympathies",
+        "big oof" to "a wound to the pride most substantial",
+        "oof" to "a blow to mine very being",
+        "mood" to "a state of being that resonateth with mine own soul",
+        "big mood" to "a sentiment that speaketh to mine soul most profoundly",
+        "same" to "verily, mine own experience doth mirror this exactly",
+        "felt that" to "those words didst pierce mine heart most directly",
+        "living rent free" to "haunting mine thoughts without paying tribute",
+        "brain rot" to "mine mind hath been corrupted by excessive foolery",
+        "rotting" to "wasting away upon mine bed chamber floor",
+        "rest" to "seeking repose most desperately",
+        "burnout" to "mine fire hath been extinguished through overwork",
+        "adulting" to "attempting the impossible tasks of responsible lordship",
+        "i can't adult today" to "I refuse mine lordly duties on this particular morrow",
+        "executive dysfunction" to "unable to commence even the simplest of quests",
+        "hyperfixation" to "consumed entirely by a single obsession like a cursed knight",
+        "intrusive thoughts" to "dark whispers from the devils of mine own mind",
+        "therapy arc" to "embarking upon a quest of inner healing and self-knowledge",
+        "healing" to "mending mine wounds most diligently",
+        "glowing" to "radiating an inner light most wondrous",
+        "thriving" to "flourishing like a kingdom in its golden age",
+        "surviving" to "merely clinging to life by mine fingertips",
+
+        // === MISCELLANEOUS MODERN SLANG ===
+        "the math ain't mathing" to "the numbers doth not add up by any arcane calculation",
+        "ok boomer" to "aye, whatever thou sayest, thou ancient and outdated elder",
+        "respectfully" to "with all due courtesy and diplomatic restraint",
+        "respectfully no" to "with the utmost respect I must firmly decline",
+        "with all due respect" to "with humble genuflection before thy station",
+        "that's not giving" to "this doth fail to provide what was promised",
+        "the bar is low" to "the standard of excellence hath been set most meagrely",
+        "the bar was low and he still tripped" to "the standard was a puddle yet still he drowned",
+        "down tremendously" to "fallen to the most catastrophic depths imaginable",
+        "we go again" to "once more unto the breach, dear friends",
+        "here we go" to "brace thyself, for it doth begin anew",
+        "i'm so done" to "mine patience hath been utterly and completely exhausted",
+        "i give up" to "I yield, I lay down mine sword entirely",
+        "why though" to "but for what conceivable reason, I implore thee",
+        "how" to "by what dark sorcery hath this come to pass",
+        "why is this so hard" to "why doth fate make this simple quest so treacherous",
+        "we don't deserve dogs" to "we are unworthy of these loyal and noble creatures",
+        "dog tax" to "thou owest the court a portrait of thine loyal hound",
+        "pet tax" to "thou owest the court a portrait of thine beloved creature",
+        "timestamp" to "the exact moment recorded in the royal chronicles",
+        "source?" to "produce thine evidence before the royal court, I demand it",
+        "citation needed" to "the royal scholars require proof of this bold claim",
+        "based and redpilled" to "enlightened and freed from the shackles of false belief",
+        "chronically online" to "permanently enslaved to thine enchanted scrying glass",
+        "grass toucher" to "one who hath ventured outside and returned most refreshed",
+        "it's giving very much" to "it doth radiate this essence with great abundance",
+        "no thoughts head empty" to "mine mind is as bare as a monk's tonsure",
+        "vibe check passed" to "thou hast been deemed of pleasant and worthy humour",
+        "vibe check failed" to "thou hast been found lacking in basic pleasant qualities",
+        "understood the assignment and ate" to "not only heeded the quest but conquered it gloriously",
+        "mother" to "the supreme and most venerated ruler of all",
+        "father" to "the patriarch most revered and powerful",
+        "she's mother" to "she doth reign supreme above all others",
+        "that's so real" to "verily this speaketh a profound and undeniable truth",
+        "i feel seen" to "mine soul hath been witnessed and understood at last",
+        "core memory" to "a moment etched into mine very soul for all eternity",
+        "character development" to "the growth of one's noble qualities through hardship",
+        "plot twist" to "a most unexpected turn in this great tale",
+        "villain arc" to "descending into darkness and abandoning one's noble path",
+        "redemption arc" to "returning from darkness to reclaim one's honour",
+        "lore" to "the deep and ancient history of a person or realm",
+        "lore drop" to "a sudden revelation of most ancient and significant history",
+        "deep lore" to "secrets buried so deep only scholars dare uncover them",
+        "this is lore" to "this shall be recorded in the chronicles of the realm"
+    )
+
+    val emojiMap: HashMap<String, String> = hashMapOf(
+        "😂" to "[doth cackle most heartily]",
+        "💀" to "[slain where I stood]",
+        "🔥" to "[a most fearsome blaze]",
+        "❤️" to "[mine heart doth flutter]",
+        "❤" to "[mine heart doth flutter]",
+        "😭" to "[weeping like a widow at the gates]",
+        "🙄" to "[rolls mine eyes toward the heavens]",
+        "😤" to "[snorting with the fury of a warhorse]",
+        "🤣" to "[rolling in the mud with laughter]",
+        "😩" to "[collapsing upon the cold stone floor]",
+        "🥺" to "[gazing up with the eyes of a wounded squire]",
+        "😏" to "[smiling with the cunning of a court jester]",
+        "🤡" to "[the fool of the royal court]",
+        "😈" to "[wearing the face of a most mischievous imp]",
+        "👀" to "[watching from behind mine visor]",
+        "💅" to "[polishing mine gauntlets with great satisfaction]",
+        "🤦" to "[burying mine face in mine hands]",
+        "🫡" to "[bowing most dutifully, milord]",
+        "🫠" to "[melting like candle wax before the throne]",
+        "🧢" to "[a cap of falsehood upon thine head]",
+        "💯" to "[one hundred farthings of pure truth]",
+        "😊" to "[beaming with the warmth of a hearth fire]",
+        "😍" to "[mine eyes doth turn to hearts]",
+        "🥰" to "[surrounded by the warmth of adoration]",
+        "😡" to "[face burning with the wrath of a thousand suns]",
+        "😱" to "[struck with terror most profound]",
+        "🤔" to "[stroking mine beard in deep contemplation]",
+        "👑" to "[a crown most deserved]",
+        "⚔️" to "[blades crossed in honour]",
+        "🛡️" to "[shielded from thine attack]",
+        "🏰" to "[within the castle walls]",
+        "💪" to "[flexing with the might of a siege engine]",
+        "🙏" to "[hands clasped in fervent prayer]",
+        "👋" to "[waving from the castle rampart]",
+        "✨" to "[sparkling with enchantment]",
+        "🎉" to "[a grand celebration most joyous]",
+        "💔" to "[mine heart cloven in twain]",
+        "😴" to "[slumbering like a bear in winter]",
+        "🤮" to "[retching most violently]",
+        "🫣" to "[peeking through mine fingers]",
+        "😮‍💨" to "[exhaling with great exhaustion]"
+    )
+
+    val rageCries = listOf(
+        "FOR THE REALM!",
+        "DEATH BEFORE DISHONOUR!",
+        "HAVE AT THEE, KNAVE!",
+        "BY MINE SWORD I SHALT SMITE THEE!",
+        "THE RAVENS SHALL FEAST THIS NIGHT!",
+        "TO ARMS, TO ARMS!",
+        "NONE SHALL PASS!",
+        "I SHALL CLEAVE THEE IN TWAIN!",
+        "BY THE BLOOD OF KINGS!",
+        "STEEL THY NERVES AND CHARGE!"
+    )
+
+    // Period-specific overrides for Tudor mode
+    val tudorOverrides: HashMap<String, String> = hashMapOf(
+        "hello" to "good morrow",
+        "hi" to "good morrow, fair soul",
+        "hey" to "prithee, attend",
+        "yes" to "aye, milady",
+        "no" to "nay, I think not",
+        "please" to "I do humbly beseech thee",
+        "thanks" to "I am most grateful, good sir",
+        "friend" to "mine dearest companion",
+        "goodbye" to "I bid thee good morrow",
+        "sorry" to "forgive me, I prithee",
+        "cool" to "most excellent",
+        "awesome" to "wondrous beyond measure",
+        "you" to "thee",
+        "your" to "thy"
+    )
+
+    // Period-specific overrides for Pirate mode
+    val pirateOverrides: HashMap<String, String> = hashMapOf(
+        "hello" to "ahoy there, matey!",
+        "hi" to "ahoy!",
+        "hey" to "oi, ye scurvy dog!",
+        "yes" to "aye aye, cap'n!",
+        "no" to "nay, not on me life!",
+        "please" to "if it please ye, cap'n",
+        "thanks" to "much obliged, ye salty dog",
+        "friend" to "matey",
+        "goodbye" to "fair winds and following seas!",
+        "sorry" to "beggin' yer pardon, matey",
+        "you" to "ye",
+        "your" to "yer",
+        "money" to "pieces of eight",
+        "food" to "grub",
+        "drink" to "grog",
+        "house" to "port o' call",
+        "cool" to "right proper",
+        "awesome" to "shiver me timbers, that be grand!",
+        "bad" to "right foul",
+        "stupid" to "ye addled bilge rat",
+        "fight" to "sword fight on the poop deck",
+        "run" to "batten down the hatches and flee!",
+        "work" to "swab the decks",
+        "boss" to "cap'n",
+        "police" to "the Royal Navy",
+        "car" to "ship",
+        "phone" to "spyglass o' enchantment",
+        "computer" to "navigational device o' sorcery",
+        "internet" to "the seven digital seas",
+        "love" to "be sweet on",
+        "hate" to "despise to Davy Jones",
+        "kill" to "send to Davy Jones' locker",
+        "go" to "set sail",
+        "walk" to "swagger forth",
+        "look" to "keep a weather eye on",
+        "think" to "methinks, arr",
+        "happy" to "jolly as a sailor with rum",
+        "sad" to "down in the doldrums",
+        "angry" to "mad as a hornet in a barrel",
+        "scared" to "shaking in me boots",
+        "tired" to "dead on me feet",
+        "drunk" to "three sheets to the wind",
+        "crazy" to "mad as a bag of ferrets",
+        "lol" to "har har har!",
+        "omg" to "blow me down!",
+        "wtf" to "what in Davy Jones' name?!",
+        "brb" to "I'll be back faster than ye can say 'landlubber'",
+        "slay" to "ye conquered the seven seas!",
+        "fire" to "cannonball! That be magnificent!",
+        "lit" to "ablaze like a ship on fire!",
+        "rizz" to "the charm of a silver-tongued corsair",
+        "cap" to "ye be talkin' bilge, ye liar!",
+        "based" to "anchored in truth, that be",
+        "mid" to "barely worth a barnacle",
+        "goat" to "the greatest pirate to ever sail"
     )
 
     fun translate(word: String): String? {
         return map[word.lowercase().trim()]
+    }
+
+    fun translateEmoji(text: String): String? {
+        return emojiMap[text]
+    }
+
+    fun translateWithPeriod(word: String, period: Int): String? {
+        val key = word.lowercase().trim()
+        return when (period) {
+            1 -> tudorOverrides[key] ?: map[key]
+            2 -> pirateOverrides[key] ?: map[key]
+            else -> map[key]
+        }
     }
 
     fun translatePhrase(text: String): String? {
