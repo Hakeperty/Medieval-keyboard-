@@ -16,6 +16,7 @@ class MedievalKeyboardService : InputMethodService(),
     private var suggestionJob: Job? = null
     private val composingWord = StringBuilder()
     private var isInputActive = false
+    private var lastCorrectedWord = ""  // tracks last autocorrect for suggestion tap-to-replace
 
     override fun onCreateInputView(): View? {
         return try {
@@ -82,14 +83,28 @@ class MedievalKeyboardService : InputMethodService(),
     override fun onSuggestionClicked(suggestion: String) {
         val ic = currentInputConnection ?: return
         if (composingWord.isNotEmpty()) {
+            // Still composing — replace composing text with suggestion
             ic.finishComposingText()
             val before = ic.getTextBeforeCursor(composingWord.length, 0) ?: ""
             if (before.toString().equals(composingWord.toString(), ignoreCase = true)) {
                 ic.deleteSurroundingText(composingWord.length, 0)
             }
+            ic.commitText(suggestion + " ", 1)
+            composingWord.clear()
+        } else if (lastCorrectedWord.isNotEmpty()) {
+            // Tap alternate suggestion to replace the last autocorrected word
+            val beforeText = ic.getTextBeforeCursor(lastCorrectedWord.length + 1, 0)?.toString() ?: ""
+            // Check if text before cursor ends with "lastCorrectedWord " or "lastCorrectedWord"
+            val withSpace = lastCorrectedWord + " "
+            if (beforeText.endsWith(withSpace)) {
+                ic.deleteSurroundingText(withSpace.length, 0)
+                ic.commitText(suggestion + " ", 1)
+            } else if (beforeText.endsWith(lastCorrectedWord)) {
+                ic.deleteSurroundingText(lastCorrectedWord.length, 0)
+                ic.commitText(suggestion, 1)
+            }
         }
-        ic.commitText(suggestion, 1)
-        composingWord.clear()
+        lastCorrectedWord = suggestion
         suggestionBar?.clearSuggestions()
     }
 
@@ -101,7 +116,15 @@ class MedievalKeyboardService : InputMethodService(),
             else -> label.lowercase()
         }
         composingWord.append(char)
-        ic.setComposingText(composingWord.toString(), 1)
+
+        // Show inline preview of medieval translation while typing
+        val preview = MedievalFallbackMap.translate(composingWord.toString().lowercase())
+        if (preview != null) {
+            val primary = preview.split(",").first().trim()
+            ic.setComposingText(primary, 1)
+        } else {
+            ic.setComposingText(composingWord.toString(), 1)
+        }
         fetchSuggestions(composingWord.toString())
 
         if (kbView.shiftState == 1) {
@@ -114,8 +137,7 @@ class MedievalKeyboardService : InputMethodService(),
         if (composingWord.isNotEmpty()) {
             val word = composingWord.toString()
             composingWord.clear()
-            ic.finishComposingText()
-            translateAndReplace(word)
+            autoCorrectAndCommit(ic, word, " ")
         } else {
             ic.commitText(" ", 1)
         }
@@ -126,12 +148,52 @@ class MedievalKeyboardService : InputMethodService(),
         if (composingWord.isNotEmpty()) {
             val word = composingWord.toString()
             composingWord.clear()
-            ic.finishComposingText()
-            translateAndReplace(word, punct)
+            autoCorrectAndCommit(ic, word, punct)
         } else {
             ic.commitText(punct, 1)
         }
         suggestionBar?.clearSuggestions()
+    }
+
+    /**
+     * Instant autocorrect: checks fallback map + cache synchronously first.
+     * If no instant match, commits the word and fires an async API replace.
+     */
+    private fun autoCorrectAndCommit(ic: InputConnection, word: String, suffix: String) {
+        // 1. Check local cache first (instant)
+        val cached = TranslationCache.get(word)
+        if (cached != null) {
+            val primary = cached.split(",").first().trim()
+            ic.finishComposingText()
+            // finishComposingText committed whatever was shown as composing text — delete it
+            val previewLen = MedievalFallbackMap.translate(word.lowercase())
+                ?.split(",")?.first()?.trim()?.length ?: word.length
+            ic.deleteSurroundingText(previewLen, 0)
+            ic.commitText(primary + suffix, 1)
+            lastCorrectedWord = primary
+            suggestionBar?.setSuggestions(cached.split(",").map { it.trim() }.take(3))
+            return
+        }
+
+        // 2. Check fallback map (instant, 400+ words)
+        val fallback = MedievalFallbackMap.translate(word.lowercase())
+        if (fallback != null) {
+            val primary = fallback.split(",").first().trim()
+            ic.finishComposingText()
+            // The preview already showed the medieval word, so delete its length
+            ic.deleteSurroundingText(primary.length, 0)
+            ic.commitText(primary + suffix, 1)
+            TranslationCache.put(word, fallback)
+            lastCorrectedWord = primary
+            suggestionBar?.setSuggestions(fallback.split(",").map { it.trim() }.take(3))
+            return
+        }
+
+        // 3. No instant match — commit as-is, then try API in background
+        ic.finishComposingText()
+        ic.commitText(suffix, 1)
+        lastCorrectedWord = word
+        translateAndReplaceAsync(word, suffix)
     }
 
     private fun handleBackspace(ic: InputConnection) {
@@ -142,7 +204,14 @@ class MedievalKeyboardService : InputMethodService(),
                 ic.deleteSurroundingText(1, 0)
                 suggestionBar?.clearSuggestions()
             } else {
-                ic.setComposingText(composingWord.toString(), 1)
+                // Show medieval preview while editing
+                val preview = MedievalFallbackMap.translate(composingWord.toString().lowercase())
+                if (preview != null) {
+                    val primary = preview.split(",").first().trim()
+                    ic.setComposingText(primary, 1)
+                } else {
+                    ic.setComposingText(composingWord.toString(), 1)
+                }
                 fetchSuggestions(composingWord.toString())
             }
         } else {
@@ -166,19 +235,21 @@ class MedievalKeyboardService : InputMethodService(),
         kbView.invalidate()
     }
 
-    private fun translateAndReplace(word: String, suffix: String = " ") {
+    /**
+     * Async API fallback: only called when the fallback map doesn't have the word.
+     * Replaces the already-committed word in-place once the API responds.
+     */
+    private fun translateAndReplaceAsync(word: String, suffix: String) {
         serviceScope.launch {
             try {
                 val translated = NvidiaApiClient.translateWord(word)
                 val ic = currentInputConnection
-                if (ic != null && isInputActive) {
-                    if (translated != null) {
-                        ic.deleteSurroundingText(word.length, 0)
-                        val primary = translated.split(",").first().trim()
-                        ic.commitText(primary + suffix, 1)
-                    } else {
-                        ic.commitText(suffix, 1)
-                    }
+                if (ic != null && isInputActive && translated != null) {
+                    val primary = translated.split(",").first().trim()
+                    // Delete the original word + suffix that was already committed
+                    ic.deleteSurroundingText(word.length + suffix.length, 0)
+                    ic.commitText(primary + suffix, 1)
+                    suggestionBar?.setSuggestions(translated.split(",").map { it.trim() }.take(3))
                 }
             } catch (_: Exception) {}
         }
