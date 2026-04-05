@@ -39,7 +39,8 @@ class KeyboardView @JvmOverloads constructor(
 
     var listener: OnKeyboardActionListener? = null
     var shiftState: Int = 0 // 0=lower, 1=UPPER, 2=Title
-    var isRageMode: Boolean = false
+    private var _rageMode: Boolean = false
+    val isRageMode: Boolean get() = _rageMode
 
     private val keys = mutableListOf<Key>()
     private var pressedKey: Key? = null
@@ -113,7 +114,7 @@ class KeyboardView @JvmOverloads constructor(
     }
 
     fun setRageMode(enabled: Boolean) {
-        isRageMode = enabled
+        _rageMode = enabled
         if (enabled) {
             if (!ragePulseAnimator.isRunning) ragePulseAnimator.start()
         } else {
