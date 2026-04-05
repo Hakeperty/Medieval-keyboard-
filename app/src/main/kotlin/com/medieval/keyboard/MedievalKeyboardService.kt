@@ -434,8 +434,11 @@ class MedievalKeyboardService : InputMethodService(),
                         val cry = MedievalFallbackMap.rageCries.random()
                         "$translated $cry"
                     } else translated
+                    freshIc.beginBatchEdit()
                     freshIc.performContextMenuAction(android.R.id.selectAll)
+                    freshIc.commitText("", 1)
                     freshIc.commitText(finalText, 1)
+                    freshIc.endBatchEdit()
                     lastTranslatedSentence = finalText
                 }
             } catch (_: Exception) {
@@ -464,8 +467,11 @@ class MedievalKeyboardService : InputMethodService(),
                         val cry = MedievalFallbackMap.rageCries.random()
                         "$translated $cry"
                     } else translated
+                    freshIc.beginBatchEdit()
                     freshIc.performContextMenuAction(android.R.id.selectAll)
+                    freshIc.commitText("", 1)
                     freshIc.commitText(finalText, 1)
+                    freshIc.endBatchEdit()
                     lastTranslatedSentence = finalText
                 }
             } catch (_: Exception) {
