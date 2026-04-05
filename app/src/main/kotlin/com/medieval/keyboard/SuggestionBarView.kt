@@ -31,6 +31,7 @@ class SuggestionBarView @JvmOverloads constructor(
         fun onIntensityChanged(intensity: Int)
         fun onCopyLastTranslation()
         fun onAutoCorrectToggle()
+        fun onRewriteContent()
     }
 
     var listener: OnSuggestionClickListener? = null
@@ -108,6 +109,7 @@ class SuggestionBarView @JvmOverloads constructor(
     private var intensityRects = arrayOf(RectF(), RectF(), RectF())
     private var copyButtonRect = RectF()
     private var autoToggleRect = RectF()
+    private var rewriteButtonRect = RectF()
 
     private var rageDownTime = 0L
 
@@ -153,31 +155,35 @@ class SuggestionBarView @JvmOverloads constructor(
         val btnY = 3f * density
         var x = pad
 
-        // Rage button (⚔️)
-        val rageBtnW = 36f * density
+        // Rage button
+        val rageBtnW = 32f * density
         rageButtonRect = RectF(x, btnY, x + rageBtnW, btnY + btnHeight)
         x += rageBtnW + pad
 
-        // Auto-correct toggle [⚔️ Auto]
-        val autoBtnW = 56f * density
+        // Auto-correct toggle
+        val autoBtnW = 44f * density
         autoToggleRect = RectF(x, btnY, x + autoBtnW, btnY + btnHeight)
         x += autoBtnW + pad
 
         // Period selector button
-        val periodBtnW = 80f * density
+        val periodBtnW = 72f * density
         periodButtonRect = RectF(x, btnY, x + periodBtnW, btnY + btnHeight)
         x += periodBtnW + pad
 
         // Intensity buttons (Mild / Olde / Forsooth)
-        val intBtnW = 52f * density
+        val intBtnW = 46f * density
         for (i in 0..2) {
             intensityRects[i] = RectF(x, btnY, x + intBtnW, btnY + btnHeight)
             x += intBtnW + 2f * density
         }
         x += pad
 
-        // Copy button (📜) on far right
-        val copyBtnW = 36f * density
+        // Rewrite button (quill) - right side
+        val rewriteBtnW = 36f * density
+        val copyBtnW = 32f * density
+        rewriteButtonRect = RectF(totalWidth - rewriteBtnW - copyBtnW - pad * 3, btnY, totalWidth - copyBtnW - pad * 2, btnY + btnHeight)
+
+        // Copy button (scroll) - far right
         copyButtonRect = RectF(totalWidth - copyBtnW - pad, btnY, totalWidth - pad, btnY + btnHeight)
     }
 
@@ -227,6 +233,15 @@ class SuggestionBarView @JvmOverloads constructor(
             val ity = intensityRects[i].centerY() - (tinyTextPaint.descent() + tinyTextPaint.ascent()) / 2f
             canvas.drawText(intensityLabels[i], intensityRects[i].centerX(), ity, tinyTextPaint)
         }
+        tinyTextPaint.color = Color.parseColor("#AAAAAA")
+
+        // Rewrite button (quill) - blue highlight
+        buttonPaint.color = Color.parseColor("#4A6FA5")
+        canvas.drawRoundRect(rewriteButtonRect, cornerR, cornerR, buttonPaint)
+        iconPaint.color = Color.WHITE
+        tinyTextPaint.color = Color.WHITE
+        val rwCy = rewriteButtonRect.centerY() - (tinyTextPaint.descent() + tinyTextPaint.ascent()) / 2f
+        canvas.drawText("AI", rewriteButtonRect.centerX(), rwCy, tinyTextPaint)
         tinyTextPaint.color = Color.parseColor("#AAAAAA")
 
         // Copy button
@@ -350,6 +365,9 @@ class SuggestionBarView @JvmOverloads constructor(
             }
             copyButtonRect.contains(x, y) -> {
                 toolbarListener?.onCopyLastTranslation()
+            }
+            rewriteButtonRect.contains(x, y) -> {
+                toolbarListener?.onRewriteContent()
             }
             else -> {
                 for (i in 0..2) {

@@ -136,6 +136,12 @@ class MedievalKeyboardService : InputMethodService(),
         hapticSuggestionTap()
     }
 
+    override fun onRewriteContent() {
+        val ic = currentInputConnection ?: return
+        hapticSuggestionTap()
+        translateAllContent(ic)
+    }
+
     // === Key handling ===
 
     override fun onKeyPress(primaryCode: Int, label: String) {
@@ -145,7 +151,11 @@ class MedievalKeyboardService : InputMethodService(),
             KeyboardView.CODE_BACKSPACE -> handleBackspace(ic)
             KeyboardView.CODE_ENTER -> handleEnter(ic)
             KeyboardView.CODE_SPACE -> handleSpace(ic)
-            KeyboardView.CODE_SYMBOLS -> {} // future symbol layer
+            KeyboardView.CODE_SYMBOLS -> switchLayout(1)
+            KeyboardView.CODE_SYMBOLS2 -> switchLayout(2)
+            KeyboardView.CODE_ABC -> switchLayout(0)
+            KeyboardView.CODE_EMOJI -> switchLayout(3)
+            KeyboardView.CODE_DIRECT_CHAR -> handleDirectChar(ic, label)
             KeyboardView.CODE_COMMA -> handlePunctuation(ic, ",")
             KeyboardView.CODE_PERIOD -> handlePunctuation(ic, ".")
             else -> handleCharacter(ic, label)
@@ -203,6 +213,29 @@ class MedievalKeyboardService : InputMethodService(),
     }
 
     // === Character input ===
+
+    private fun switchLayout(mode: Int) {
+        if (composingWord.isNotEmpty()) {
+            currentInputConnection?.finishComposingText()
+            composingWord.clear()
+        }
+        keyboardView?.switchLayout(mode)
+    }
+
+    private fun handleDirectChar(ic: InputConnection, label: String) {
+        // Finish composing first
+        if (composingWord.isNotEmpty()) {
+            ic.finishComposingText()
+            composingWord.clear()
+        }
+        // Check if it's an emoji that should be replaced
+        val emojiReplacement = MedievalFallbackMap.translateEmoji(label)
+        if (emojiReplacement != null) {
+            ic.commitText(emojiReplacement, 1)
+        } else {
+            ic.commitText(label, 1)
+        }
+    }
 
     private fun handleCharacter(ic: InputConnection, label: String) {
         val kbView = keyboardView ?: return

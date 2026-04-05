@@ -284,6 +284,14 @@ OUTPUT FORMAT:
 - For full sentences: return only the translated sentence, nothing else
 - Never explain, never add quotes, never add labels
 - Keep the core meaning intact while maximizing medieval flavor
+
+SENTENCE CORRECTION RULES:
+- When given a full sentence, FIRST fix any spelling mistakes and grammar errors
+- Then translate the corrected sentence into medieval English
+- Ensure proper sentence structure even if the input was poorly written
+- Add appropriate punctuation if missing
+- If the input is fragmented or incomplete, expand it into a proper medieval sentence
+- Always produce grammatically correct medieval English output
     """.trimIndent()
 
     private val TUDOR_PROMPT_SUFFIX = """
@@ -383,7 +391,7 @@ INTENSITY: MAXIMUM FORSOOTH MODE. Transform EVERYTHING:
 
         return try {
             val result = withTimeoutOrNull(TIMEOUT_MS) {
-                callApi("Translate this to medieval English: $sentence", period, intensity, rageMode)
+                callApi("Translate this to medieval English. Fix any spelling or grammar errors while translating. Rewrite the entire text with maximum medieval vocabulary and style: $sentence", period, intensity, rageMode)
             }
             if (result != null) {
                 TranslationCache.put(sentence, result)
