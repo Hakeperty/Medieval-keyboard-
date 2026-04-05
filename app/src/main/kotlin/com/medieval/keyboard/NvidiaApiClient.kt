@@ -404,6 +404,51 @@ INTENSITY: MAXIMUM FORSOOTH MODE. Transform EVERYTHING:
         }
     }
 
+    suspend fun elaborateRewrite(sentence: String, period: Int = 0, intensity: Int = 1, rageMode: Boolean = false): String? {
+        val cacheKey = "elaborate:$sentence"
+        val cached = TranslationCache.get(cacheKey)
+        if (cached != null) return cached
+
+        val apiKey = BuildConfig.NVIDIA_API_KEY
+        if (apiKey.isBlank()) return translateSentenceFallback(sentence, period)
+
+        val elaboratePrompt = buildString {
+            append("You are given modern English text. Your task is to perform a DEEP, ELABORATE medieval rewrite. Follow ALL these rules:\n\n")
+            append("1. FIRST fix any spelling mistakes, grammar errors, or incomplete thoughts in the input.\n")
+            append("2. EXPAND the text significantly — a short phrase should become a full, rich medieval sentence. ")
+            append("A single sentence should become 2-3 ornate medieval sentences.\n")
+            append("3. ADD medieval flourishes: dramatic openings (Hark!, Hearken!, Verily!, Lo!), ")
+            append("dramatic closings (...methinks, ...I say!, ...'tis so, ...by mine honour), ")
+            append("and vivid medieval imagery throughout.\n")
+            append("4. REPLACE every possible modern word with its medieval equivalent — ")
+            append("use thou/thee/thy/thine, doth/hath/art/wilt, prithee/forsooth/verily, ")
+            append("and all period vocabulary.\n")
+            append("5. ADD context and color: if someone says 'I'm going to work', don't just translate — ")
+            append("expand it into something like 'Hark! I must venture forth unto mine place of toil, ")
+            append("for mine liege doth demand my labours ere the noontide bell doth toll.'\n")
+            append("6. USE medieval sentence structure: invert subject-verb occasionally, ")
+            append("use subordinate clauses, add oaths and exclamations naturally.\n")
+            append("7. If the input is very short (1-3 words), still produce at least a full elaborate medieval sentence.\n")
+            append("8. NEVER explain what you did. NEVER add labels or quotes. Return ONLY the rewritten text.\n\n")
+            append("Now perform a deep elaborate medieval rewrite of this text:\n")
+            append(sentence)
+        }
+
+        return try {
+            val result = withTimeoutOrNull(6000L) {
+                callApi(elaboratePrompt, period, intensity, rageMode)
+            }
+            if (result != null) {
+                TranslationCache.put(cacheKey, result)
+                result
+            } else {
+                translateSentenceFallback(sentence, period)
+            }
+        } catch (e: Exception) {
+            translateSentenceFallback(sentence, period)
+        }
+    }
+
     suspend fun getSuggestions(word: String, period: Int = 0, intensity: Int = 1): List<String> {
         val cached = TranslationCache.get(word)
         if (cached != null) return cached.split(",").map { it.trim() }.take(3)

@@ -139,7 +139,7 @@ class MedievalKeyboardService : InputMethodService(),
     override fun onRewriteContent() {
         val ic = currentInputConnection ?: return
         hapticSuggestionTap()
-        translateAllContent(ic)
+        elaborateRewriteContent(ic)
     }
 
     // === Key handling ===
@@ -428,6 +428,36 @@ class MedievalKeyboardService : InputMethodService(),
         serviceScope.launch {
             try {
                 val translated = NvidiaApiClient.translateSentence(emojiProcessed, currentPeriod, currentIntensity, isRageMode)
+                val freshIc = currentInputConnection
+                if (freshIc != null && isInputActive && translated != null) {
+                    val finalText = if (isRageMode) {
+                        val cry = MedievalFallbackMap.rageCries.random()
+                        "$translated $cry"
+                    } else translated
+                    freshIc.performContextMenuAction(android.R.id.selectAll)
+                    freshIc.commitText(finalText, 1)
+                    lastTranslatedSentence = finalText
+                }
+            } catch (_: Exception) {
+            } finally {
+                suggestionBar?.setLoading(false)
+            }
+        }
+    }
+
+    private fun elaborateRewriteContent(ic: InputConnection) {
+        val before = try {
+            ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
+        } catch (_: Exception) { null }
+        val fullText = before?.text?.toString() ?: return
+        if (fullText.isBlank()) return
+
+        val emojiProcessed = processTextForEmoji(fullText)
+
+        suggestionBar?.setLoading(true)
+        serviceScope.launch {
+            try {
+                val translated = NvidiaApiClient.elaborateRewrite(emojiProcessed, currentPeriod, currentIntensity, isRageMode)
                 val freshIc = currentInputConnection
                 if (freshIc != null && isInputActive && translated != null) {
                     val finalText = if (isRageMode) {
