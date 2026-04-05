@@ -235,14 +235,14 @@ class KeyboardView @JvmOverloads constructor(
                 pressedKey?.let {
                     hapticFeedback()
                     if (it.code == CODE_SPACE) {
-                        handler.postDelayed(longPressRunnable, 600)
+                        handler?.postDelayed(longPressRunnable, 600)
                     }
                 }
                 invalidate()
                 return true
             }
             MotionEvent.ACTION_UP -> {
-                handler.removeCallbacks(longPressRunnable)
+                handler?.removeCallbacks(longPressRunnable)
                 pressedKey?.let { key ->
                     if (!longPressTriggered) {
                         val label = getDisplayLabel(key)
@@ -254,7 +254,7 @@ class KeyboardView @JvmOverloads constructor(
                 return true
             }
             MotionEvent.ACTION_CANCEL -> {
-                handler.removeCallbacks(longPressRunnable)
+                handler?.removeCallbacks(longPressRunnable)
                 pressedKey = null
                 longPressTriggered = false
                 invalidate()

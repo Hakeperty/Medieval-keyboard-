@@ -336,15 +336,20 @@ OUTPUT FORMAT:
             throw Exception("API error: ${response.code}")
         }
 
-        val json = JSONObject(responseBody)
-        val choices = json.getJSONArray("choices")
-        if (choices.length() > 0) {
-            choices.getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content")
-                .trim()
-        } else {
-            throw Exception("No choices in response")
+        try {
+            val json = JSONObject(responseBody)
+            val choices = json.optJSONArray("choices")
+                ?: throw Exception("No choices array in response")
+            if (choices.length() > 0) {
+                choices.getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content")
+                    .trim()
+            } else {
+                throw Exception("No choices in response")
+            }
+        } catch (e: org.json.JSONException) {
+            throw Exception("Invalid API response format: ${e.message}")
         }
     }
 

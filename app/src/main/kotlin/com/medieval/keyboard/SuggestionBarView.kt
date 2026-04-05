@@ -84,16 +84,17 @@ class SuggestionBarView @JvmOverloads constructor(
             return
         }
 
-        if (suggestions.isEmpty()) return
+        val currentSuggestions = suggestions
+        if (currentSuggestions.isEmpty()) return
 
-        val sectionWidth = width.toFloat() / suggestions.size
+        val sectionWidth = width.toFloat() / currentSuggestions.size
 
-        suggestions.forEachIndexed { index, suggestion ->
+        currentSuggestions.forEachIndexed { index, suggestion ->
             val centerX = sectionWidth * index + sectionWidth / 2
             val centerY = height / 2f + textPaint.textSize / 3f
             canvas.drawText(suggestion, centerX, centerY, textPaint)
 
-            if (index < suggestions.size - 1) {
+            if (index < currentSuggestions.size - 1) {
                 val dividerX = sectionWidth * (index + 1)
                 canvas.drawLine(dividerX, 8f, dividerX, height - 8f, dividerPaint)
             }
@@ -132,11 +133,14 @@ class SuggestionBarView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event.action == MotionEvent.ACTION_UP && suggestions.isNotEmpty()) {
-            val sectionWidth = width.toFloat() / suggestions.size
-            val index = (event.x / sectionWidth).toInt().coerceIn(0, suggestions.size - 1)
-            listener?.onSuggestionClicked(suggestions[index])
-            return true
+        if (event.action == MotionEvent.ACTION_UP) {
+            val currentSuggestions = suggestions
+            if (currentSuggestions.isNotEmpty()) {
+                val sectionWidth = width.toFloat() / currentSuggestions.size
+                val index = (event.x / sectionWidth).toInt().coerceIn(0, currentSuggestions.size - 1)
+                listener?.onSuggestionClicked(currentSuggestions[index])
+                return true
+            }
         }
         return super.onTouchEvent(event)
     }

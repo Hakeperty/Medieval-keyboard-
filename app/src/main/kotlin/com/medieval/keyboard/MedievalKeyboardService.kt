@@ -10,25 +10,54 @@ class MedievalKeyboardService : InputMethodService(),
     KeyboardView.OnKeyboardActionListener,
     SuggestionBarView.OnSuggestionClickListener {
 
-    private lateinit var keyboardView: KeyboardView
-    private lateinit var suggestionBar: SuggestionBarView
+    private var keyboardView: KeyboardView? = null
+    private var suggestionBar: SuggestionBarView? = null
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var suggestionJob: Job? = null
-    private var composingWord = StringBuilder()
+    private val composingWord = StringBuilder()
+    private var isInputActive = false
 
-    override fun onCreateInputView(): View {
-        val layout = layoutInflater.inflate(R.layout.keyboard_view, null)
-        keyboardView = layout.findViewById(R.id.keyboard_view)
-        suggestionBar = layout.findViewById(R.id.suggestion_bar)
-        keyboardView.listener = this
-        suggestionBar.listener = this
-        return layout
+    override fun onCreateInputView(): View? {
+        return try {
+            val layout = layoutInflater.inflate(R.layout.keyboard_view, null)
+            keyboardView = layout.findViewById(R.id.keyboard_view)
+            suggestionBar = layout.findViewById(R.id.suggestion_bar)
+            keyboardView?.listener = this
+            suggestionBar?.listener = this
+            layout
+        } catch (e: Exception) {
+            null
+        }
     }
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         composingWord.clear()
-        suggestionBar.clearSuggestions()
+        suggestionBar?.clearSuggestions()
+        isInputActive = true
+    }
+
+    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        super.onStartInputView(info, restarting)
+        isInputActive = true
+        composingWord.clear()
+        suggestionBar?.clearSuggestions()
+    }
+
+    override fun onFinishInputView(finishingInput: Boolean) {
+        suggestionJob?.cancel()
+        composingWord.clear()
+        suggestionBar?.clearSuggestions()
+        isInputActive = false
+        super.onFinishInputView(finishingInput)
+    }
+
+    override fun onFinishInput() {
+        suggestionJob?.cancel()
+        composingWord.clear()
+        suggestionBar?.clearSuggestions()
+        isInputActive = false
+        super.onFinishInput()
     }
 
     override fun onKeyPress(primaryCode: Int, label: String) {
@@ -61,11 +90,12 @@ class MedievalKeyboardService : InputMethodService(),
         }
         ic.commitText(suggestion, 1)
         composingWord.clear()
-        suggestionBar.clearSuggestions()
+        suggestionBar?.clearSuggestions()
     }
 
     private fun handleCharacter(ic: InputConnection, label: String) {
-        val char = when (keyboardView.shiftState) {
+        val kbView = keyboardView ?: return
+        val char = when (kbView.shiftState) {
             1 -> label.uppercase()
             2 -> if (composingWord.isEmpty()) label.uppercase() else label.lowercase()
             else -> label.lowercase()
@@ -74,10 +104,9 @@ class MedievalKeyboardService : InputMethodService(),
         ic.setComposingText(composingWord.toString(), 1)
         fetchSuggestions(composingWord.toString())
 
-        // Auto-reset shift after one character in UPPERCASE mode
-        if (keyboardView.shiftState == 1) {
-            keyboardView.shiftState = 0
-            keyboardView.invalidate()
+        if (kbView.shiftState == 1) {
+            kbView.shiftState = 0
+            kbView.invalidate()
         }
     }
 
@@ -86,11 +115,11 @@ class MedievalKeyboardService : InputMethodService(),
             val word = composingWord.toString()
             composingWord.clear()
             ic.finishComposingText()
-            translateAndReplace(ic, word)
+            translateAndReplace(word)
         } else {
             ic.commitText(" ", 1)
         }
-        suggestionBar.clearSuggestions()
+        suggestionBar?.clearSuggestions()
     }
 
     private fun handlePunctuation(ic: InputConnection, punct: String) {
@@ -98,11 +127,11 @@ class MedievalKeyboardService : InputMethodService(),
             val word = composingWord.toString()
             composingWord.clear()
             ic.finishComposingText()
-            translateAndReplace(ic, word, punct)
+            translateAndReplace(word, punct)
         } else {
             ic.commitText(punct, 1)
         }
-        suggestionBar.clearSuggestions()
+        suggestionBar?.clearSuggestions()
     }
 
     private fun handleBackspace(ic: InputConnection) {
@@ -111,7 +140,7 @@ class MedievalKeyboardService : InputMethodService(),
             if (composingWord.isEmpty()) {
                 ic.finishComposingText()
                 ic.deleteSurroundingText(1, 0)
-                suggestionBar.clearSuggestions()
+                suggestionBar?.clearSuggestions()
             } else {
                 ic.setComposingText(composingWord.toString(), 1)
                 fetchSuggestions(composingWord.toString())
@@ -128,65 +157,81 @@ class MedievalKeyboardService : InputMethodService(),
         }
         ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER))
         ic.sendKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_ENTER))
-        suggestionBar.clearSuggestions()
+        suggestionBar?.clearSuggestions()
     }
 
     private fun cycleShift() {
-        keyboardView.shiftState = (keyboardView.shiftState + 1) % 3
-        keyboardView.invalidate()
+        val kbView = keyboardView ?: return
+        kbView.shiftState = (kbView.shiftState + 1) % 3
+        kbView.invalidate()
     }
 
-    private fun translateAndReplace(ic: InputConnection, word: String, suffix: String = " ") {
+    private fun translateAndReplace(word: String, suffix: String = " ") {
         serviceScope.launch {
-            val translated = NvidiaApiClient.translateWord(word)
-            if (translated != null) {
-                // The word was already committed via finishComposingText, so delete it
-                ic.deleteSurroundingText(word.length, 0)
-                // Take only the first suggestion if comma-separated
-                val primary = translated.split(",").first().trim()
-                ic.commitText(primary + suffix, 1)
-            } else {
-                ic.commitText(suffix, 1)
-            }
+            try {
+                val translated = NvidiaApiClient.translateWord(word)
+                val ic = currentInputConnection
+                if (ic != null && isInputActive) {
+                    if (translated != null) {
+                        ic.deleteSurroundingText(word.length, 0)
+                        val primary = translated.split(",").first().trim()
+                        ic.commitText(primary + suffix, 1)
+                    } else {
+                        ic.commitText(suffix, 1)
+                    }
+                }
+            } catch (_: Exception) {}
         }
     }
 
     private fun translateAllContent(ic: InputConnection) {
-        val before = ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
+        val before = try {
+            ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
+        } catch (_: Exception) { null }
         val fullText = before?.text?.toString() ?: return
         if (fullText.isBlank()) return
 
-        suggestionBar.setLoading(true)
+        suggestionBar?.setLoading(true)
         serviceScope.launch {
-            val translated = NvidiaApiClient.translateSentence(fullText)
-            if (translated != null) {
-                ic.performContextMenuAction(android.R.id.selectAll)
-                ic.commitText(translated, 1)
+            try {
+                val translated = NvidiaApiClient.translateSentence(fullText)
+                val freshIc = currentInputConnection
+                if (freshIc != null && isInputActive && translated != null) {
+                    freshIc.performContextMenuAction(android.R.id.selectAll)
+                    freshIc.commitText(translated, 1)
+                }
+            } catch (_: Exception) {
+            } finally {
+                suggestionBar?.setLoading(false)
             }
-            suggestionBar.setLoading(false)
         }
     }
 
     private fun fetchSuggestions(word: String) {
         suggestionJob?.cancel()
         if (word.length < 2) {
-            suggestionBar.clearSuggestions()
+            suggestionBar?.clearSuggestions()
             return
         }
-        suggestionBar.setLoading(true)
+        suggestionBar?.setLoading(true)
         suggestionJob = serviceScope.launch {
-            val suggestions = NvidiaApiClient.getSuggestions(word)
-            if (isActive) {
-                if (suggestions.isNotEmpty()) {
-                    suggestionBar.setSuggestions(suggestions)
-                } else {
-                    suggestionBar.clearSuggestions()
+            try {
+                val suggestions = NvidiaApiClient.getSuggestions(word)
+                if (isActive && isInputActive) {
+                    if (suggestions.isNotEmpty()) {
+                        suggestionBar?.setSuggestions(suggestions)
+                    } else {
+                        suggestionBar?.clearSuggestions()
+                    }
                 }
+            } catch (_: Exception) {
+                if (isActive) suggestionBar?.clearSuggestions()
             }
         }
     }
 
     override fun onDestroy() {
+        isInputActive = false
         serviceScope.cancel()
         super.onDestroy()
     }
