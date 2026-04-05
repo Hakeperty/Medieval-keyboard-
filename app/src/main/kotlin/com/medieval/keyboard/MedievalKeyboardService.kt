@@ -416,15 +416,13 @@ class MedievalKeyboardService : InputMethodService(),
 
     private fun replaceAllText(ic: InputConnection, newText: String) {
         ic.beginBatchEdit()
-        // Get full text to know its length
         val extracted = try {
             ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
         } catch (_: Exception) { null }
-        val fullLen = extracted?.text?.length ?: 0
-        if (fullLen > 0) {
-            // Move cursor to end, then delete everything before it
-            ic.setSelection(fullLen, fullLen)
-            ic.deleteSurroundingText(fullLen, 0)
+        val len = extracted?.text?.length ?: 0
+        if (len > 0) {
+            // Select ALL text (0 to end), then commitText replaces the selection
+            ic.setSelection(0, len)
         }
         ic.commitText(newText, 1)
         ic.endBatchEdit()
