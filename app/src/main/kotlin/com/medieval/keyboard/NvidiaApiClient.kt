@@ -17,12 +17,15 @@ object NvidiaApiClient {
     private const val BASE_URL = "https://integrate.api.nvidia.com/v1"
     private const val MODEL = "nvidia/llama-3.1-nemotron-nano-8b-v1"
     private const val TIMEOUT_MS = 4000L
+    private const val ELABORATE_TIMEOUT_MS = 8000L
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(3, TimeUnit.SECONDS)
-        .readTimeout(4, TimeUnit.SECONDS)
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .readTimeout(10, TimeUnit.SECONDS)
         .writeTimeout(3, TimeUnit.SECONDS)
         .build()
+
+    private fun getApiKey(): String = BuildConfig.NVIDIA_API_KEY
 
     private val SYSTEM_PROMPT = """
 You are an expert scholar of authentic Middle English and medieval vernacular speech 
@@ -363,7 +366,7 @@ INTENSITY: MAXIMUM FORSOOTH MODE. Transform EVERYTHING:
         val cached = TranslationCache.get(word)
         if (cached != null) return cached
 
-        val apiKey = BuildConfig.NVIDIA_API_KEY
+        val apiKey = getApiKey()
         if (apiKey.isBlank()) return MedievalFallbackMap.translateWithPeriod(word, period)
 
         return try {
@@ -386,7 +389,7 @@ INTENSITY: MAXIMUM FORSOOTH MODE. Transform EVERYTHING:
         val cached = TranslationCache.get(sentence)
         if (cached != null) return cached
 
-        val apiKey = BuildConfig.NVIDIA_API_KEY
+        val apiKey = getApiKey()
         if (apiKey.isBlank()) return translateSentenceFallback(sentence, period)
 
         return try {
@@ -409,7 +412,7 @@ INTENSITY: MAXIMUM FORSOOTH MODE. Transform EVERYTHING:
         val cached = TranslationCache.get(cacheKey)
         if (cached != null) return cached
 
-        val apiKey = BuildConfig.NVIDIA_API_KEY
+        val apiKey = getApiKey()
         if (apiKey.isBlank()) return translateSentenceFallback(sentence, period)
 
         val elaboratePrompt = buildString {
@@ -435,7 +438,7 @@ INTENSITY: MAXIMUM FORSOOTH MODE. Transform EVERYTHING:
         }
 
         return try {
-            val result = withTimeoutOrNull(6000L) {
+            val result = withTimeoutOrNull(ELABORATE_TIMEOUT_MS) {
                 callApi(elaboratePrompt, period, intensity, rageMode)
             }
             if (result != null) {
@@ -453,7 +456,7 @@ INTENSITY: MAXIMUM FORSOOTH MODE. Transform EVERYTHING:
         val cached = TranslationCache.get(word)
         if (cached != null) return cached.split(",").map { it.trim() }.take(3)
 
-        val apiKey = BuildConfig.NVIDIA_API_KEY
+        val apiKey = getApiKey()
         if (apiKey.isBlank()) {
             val fallback = MedievalFallbackMap.translateWithPeriod(word, period) ?: return emptyList()
             return listOf(fallback)
@@ -493,15 +496,17 @@ INTENSITY: MAXIMUM FORSOOTH MODE. Transform EVERYTHING:
         val body = JSONObject().apply {
             put("model", MODEL)
             put("messages", messagesArray)
-            put("temperature", 0.7)
-            put("top_p", 0.9)
-            put("max_tokens", 256)
+            put("temperature", 0)
+            put("top_p", 0.95)
+            put("max_tokens", 4096)
+            put("frequency_penalty", 0)
+            put("presence_penalty", 0)
             put("stream", false)
         }
 
         val request = Request.Builder()
             .url("$BASE_URL/chat/completions")
-            .addHeader("Authorization", "Bearer ${BuildConfig.NVIDIA_API_KEY}")
+            .addHeader("Authorization", "Bearer ${getApiKey()}")
             .addHeader("Content-Type", "application/json")
             .post(body.toString().toRequestBody("application/json".toMediaType()))
             .build()
